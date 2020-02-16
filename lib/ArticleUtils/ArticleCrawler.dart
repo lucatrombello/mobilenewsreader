@@ -2,11 +2,11 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 
-class Article {
+class ArticleCrawler {
   String link;
-  Article(this.link);
+  ArticleCrawler(this.link);
 
-  Future<String> getData() async {
+  Future<String> getArticle() async {
     http.Response response = await http.get(this.link);
     dom.Document document = parser.parse(response.body);
     return document

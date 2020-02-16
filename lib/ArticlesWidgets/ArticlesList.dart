@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobilenewsreader/Article.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/ReadArticlePage.dart';
 import 'package:webfeed/webfeed.dart';
 import 'package:intl/intl.dart';
 
-class RSSReader extends StatelessWidget {
+class ArticlesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'titolo',
+      title: 'mobilenewsreader',
       home: Articles(),
     );
   }
@@ -70,7 +69,8 @@ class _ArticlesState extends State<Articles> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ReadArticle(_rssFeed.items[index]),
+                    builder: (context) =>
+                        ReadArticlePage(_rssFeed.items[index]),
                   ),
                 );
               },
@@ -91,80 +91,5 @@ class _ArticlesState extends State<Articles> {
     return lastMidnight.isBefore(originalDate)
         ? todayDateFormat.format(originalDate)
         : pastDateFormat.format(originalDate);
-  }
-}
-
-class ReadArticle extends StatelessWidget {
-  final RssItem feed;
-  ReadArticle(this.feed);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(feed.source.value),
-      ),
-      body: Column(
-        children: <Widget>[RSSTitle(feed: feed), ArticleText(feed: feed)],
-      ),
-    );
-  }
-}
-
-class ArticleText extends StatefulWidget {
-  const ArticleText({
-    Key key,
-    @required this.feed,
-  }) : super(key: key);
-
-  final RssItem feed;
-
-  @override
-  _ArticleTextState createState() => _ArticleTextState();
-}
-
-class _ArticleTextState extends State<ArticleText> {
-  String articleText = "";
-  @override
-  void initState() {
-    super.initState();
-    void loadArticle() async {
-      String article = await Article(widget.feed.link).getData();
-      setState(() {
-        this.articleText = article.length > 0 ? article : 'vuoto';
-      });
-    }
-
-    loadArticle();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(8.0),
-        child: Html(data: articleText),
-      ),
-    );
-  }
-}
-
-class RSSTitle extends StatelessWidget {
-  const RSSTitle({
-    Key key,
-    @required this.feed,
-  }) : super(key: key);
-
-  final RssItem feed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        feed.title,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      ),
-    );
   }
 }

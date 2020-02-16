@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobilenewsreader/RSSReader.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/ArticlesList.dart';
 
 main(List<String> args) {
-  runApp(RSSReader());
+  runApp(ArticlesList());
 }
