@@ -10,7 +10,7 @@ class Menu extends StatelessWidget {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
-        children: const <Widget>[
+        children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
               color: Colors.blue,
@@ -26,14 +26,23 @@ class Menu extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.subtitles),
             title: Text('General'),
+            onTap: () {
+              Navigator.pop(context);
+            },
           ),
           ListTile(
             leading: Icon(Icons.devices_other),
             title: Text('Technology'),
+            onTap: () {
+              Navigator.pop(context);
+            },
           ),
           ListTile(
             leading: Icon(Icons.pool),
             title: Text('Sport'),
+            onTap: () {
+              Navigator.pop(context);
+            },
           ),
         ],
       ),
