@@ -22,7 +22,7 @@ class Menu extends StatelessWidget {
       _getMenuHeader(),
     );
     menuItems.addAll(
-      _getListChannels(context),
+      _getChannelsList(context),
     );
 
     return menuItems;
@@ -43,11 +43,11 @@ class Menu extends StatelessWidget {
     );
   }
 
-  List<Widget> _getListChannels(BuildContext context) {
+  List<Widget> _getChannelsList(BuildContext context) {
     return channels.entries
         .map(
           (MapEntry<String, String> e) => ListTile(
-            leading: Icon(Icons.view_headline),
+            leading: Icon(Icons.list),
             title: Text(e.key),
             onTap: () {
               _onChannelSelected(e);
