@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobilenewsreader/ArticlesWidgets/Menu.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ReadArticlePage.dart';
+import 'package:mobilenewsreader/resources/channels.dart';
 import 'package:webfeed/webfeed.dart';
 import 'package:intl/intl.dart';
 
@@ -22,16 +23,24 @@ class Articles extends StatefulWidget {
 
 class _ArticlesState extends State<Articles> {
   RssFeed _rssFeed;
+  MapEntry<String, String> _channel;
+
+  void setChannel(MapEntry<String, String> channel) {
+    setState(() {
+      _channel = channel;
+      update();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _channel = channels.entries.first;
     update();
   }
 
   void update() async {
-    http.Response response =
-        await http.get('https://news.google.com/rss?hl=it');
+    http.Response response = await http.get(_channel.value);
     if (response.statusCode == 200) {
       setState(() {
         _rssFeed = new RssFeed.parse(response.body);
@@ -43,7 +52,7 @@ class _ArticlesState extends State<Articles> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('RSS'),
+        title: Text(_channel.key),
         actions: <Widget>[
           IconButton(
             icon: Icon(
@@ -53,7 +62,7 @@ class _ArticlesState extends State<Articles> {
           )
         ],
       ),
-      drawer: Menu(),
+      drawer: Menu(setChannel),
       body: buildArticlesList(),
     );
   }
