@@ -10,6 +10,11 @@ class ArticlesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        textTheme: TextTheme(
+            body1: TextStyle(fontSize: 18.0),
+            subhead: TextStyle(fontSize: 20.0)),
+      ),
       title: 'mobilenewsreader',
       home: Articles(),
     );
@@ -22,7 +27,7 @@ class Articles extends StatefulWidget {
 }
 
 class _ArticlesState extends State<Articles> {
-  RssFeed _rssFeed;
+  List<RssItem> _rssFeedItems;
   MapEntry<String, String> _channel;
 
   void setChannel(MapEntry<String, String> channel) {
@@ -43,7 +48,10 @@ class _ArticlesState extends State<Articles> {
     http.Response response = await http.get(_channel.value);
     if (response.statusCode == 200) {
       setState(() {
-        _rssFeed = new RssFeed.parse(response.body);
+        _rssFeedItems = RssFeed.parse(response.body).items;
+        _rssFeedItems.sort((item1, item2) => rssDateFormat
+            .parseUTC(item2.pubDate)
+            .compareTo(rssDateFormat.parseUTC(item1.pubDate)));
       });
     }
   }
@@ -72,16 +80,15 @@ class _ArticlesState extends State<Articles> {
         itemCount: 25,
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (context, index) {
-          if (_rssFeed != null && index < _rssFeed.items.length) {
+          if (_rssFeedItems != null && index < _rssFeedItems.length) {
             return ListTile(
-              title: Text(_rssFeed.items[index].title),
-              subtitle: Text(formatDate(_rssFeed.items[index].pubDate)),
+              title: Text(_rssFeedItems[index].title),
+              subtitle: Text(formatDate(_rssFeedItems[index].pubDate)),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ReadArticlePage(_rssFeed.items[index]),
+                    builder: (context) => ReadArticlePage(_rssFeedItems[index]),
                   ),
                 );
               },
@@ -92,8 +99,8 @@ class _ArticlesState extends State<Articles> {
   }
 
   final DateFormat rssDateFormat = DateFormat('EEE, dd MMM yyyy hh:mm');
-  final DateFormat todayDateFormat = DateFormat('hh:mm');
-  final DateFormat pastDateFormat = DateFormat('dd MMM hh:mm');
+  final DateFormat todayDateFormat = DateFormat('H:mm');
+  final DateFormat pastDateFormat = DateFormat('dd MMM H:mm');
 
   String formatDate(String date) {
     final DateTime originalDate = rssDateFormat.parseUTC(date).toLocal();
