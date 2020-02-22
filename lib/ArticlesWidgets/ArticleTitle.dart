@@ -15,7 +15,7 @@ class ArticleTitle extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Text(
         feed.title,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
       ),
     );
   }

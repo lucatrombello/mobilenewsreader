@@ -1,10 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobilenewsreader/ArticleUtils/TimeFormatting.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/ArticleLink.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/Menu.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ReadArticlePage.dart';
 import 'package:mobilenewsreader/resources/channels.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:webfeed/webfeed.dart';
-import 'package:intl/intl.dart';
 
 class ArticlesList extends StatelessWidget {
   @override
@@ -12,8 +15,9 @@ class ArticlesList extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: TextTheme(
-            body1: TextStyle(fontSize: 18.0),
-            subhead: TextStyle(fontSize: 20.0)),
+          body1: TextStyle(fontSize: 17.0),
+          subhead: TextStyle(fontSize: 18.0),
+        ),
       ),
       title: 'mobilenewsreader',
       home: Articles(),
@@ -27,8 +31,19 @@ class Articles extends StatefulWidget {
 }
 
 class _ArticlesState extends State<Articles> {
-  List<RssItem> _rssFeedItems;
+  RssFeed _rssFeed;
   MapEntry<String, String> _channel;
+  DateTime _lastUpdate = DateTime.now();
+
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    // monitor network fetch
+    await update();
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
 
   void setChannel(MapEntry<String, String> channel) {
     setState(() {
@@ -44,14 +59,15 @@ class _ArticlesState extends State<Articles> {
     update();
   }
 
-  void update() async {
+  Future update() async {
     http.Response response = await http.get(_channel.value);
     if (response.statusCode == 200) {
       setState(() {
-        _rssFeedItems = RssFeed.parse(response.body).items;
-        _rssFeedItems.sort((item1, item2) => rssDateFormat
+        _rssFeed = RssFeed.parse(response.body);
+        _rssFeed.items.sort((item1, item2) => TimeFormatting.rssDateFormat
             .parseUTC(item2.pubDate)
-            .compareTo(rssDateFormat.parseUTC(item1.pubDate)));
+            .compareTo(TimeFormatting.rssDateFormat.parseUTC(item1.pubDate)));
+        _lastUpdate = DateTime.now();
       });
     }
   }
@@ -62,33 +78,67 @@ class _ArticlesState extends State<Articles> {
       appBar: AppBar(
         title: Text(_channel.key),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.update,
-            ),
-            onPressed: update,
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(TimeFormatting().formatDateTime(_lastUpdate)),
           )
         ],
       ),
       drawer: Menu(setChannel),
-      body: buildArticlesList(),
+      body: _buildSmartRefresher(),
     );
   }
 
-  ListView buildArticlesList() {
+  SmartRefresher _buildSmartRefresher() {
+    return SmartRefresher(
+      enablePullDown: true,
+      enablePullUp: false,
+      header: WaterDropHeader(),
+      footer: CustomFooter(
+        builder: (BuildContext context, LoadStatus mode) {
+          Widget body;
+          if (mode == LoadStatus.idle) {
+            body = Text("pull up load");
+          } else if (mode == LoadStatus.loading) {
+            body = CupertinoActivityIndicator();
+          } else if (mode == LoadStatus.failed) {
+            body = Text("Load Failed!Click retry!");
+          } else if (mode == LoadStatus.canLoading) {
+            body = Text("release to load more");
+          } else {
+            body = Text("No more Data");
+          }
+          return Container(
+            height: 55.0,
+            child: Center(child: body),
+          );
+        },
+      ),
+      controller: _refreshController,
+      onRefresh: _onRefresh,
+      child: _buildArticlesList(),
+    );
+  }
+
+  ListView _buildArticlesList() {
     return ListView.separated(
         itemCount: 25,
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (context, index) {
-          if (_rssFeedItems != null && index < _rssFeedItems.length) {
+          if (_rssFeed != null && index < _rssFeed.items.length) {
+            var rssItem = _rssFeed.items[index];
             return ListTile(
-              title: Text(_rssFeedItems[index].title),
-              subtitle: Text(formatDate(_rssFeedItems[index].pubDate)),
+              title: Text(rssItem.title),
+              subtitle: Text(
+                TimeFormatting().formatDateString(rssItem.pubDate),
+                style: TextStyle(fontSize: 14),
+              ),
+              trailing: ArticleLink(feed: rssItem),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ReadArticlePage(_rssFeedItems[index]),
+                    builder: (context) => ReadArticlePage(rssItem),
                   ),
                 );
               },
@@ -96,18 +146,5 @@ class _ArticlesState extends State<Articles> {
           }
           return null;
         });
-  }
-
-  final DateFormat rssDateFormat = DateFormat('EEE, dd MMM yyyy hh:mm');
-  final DateFormat todayDateFormat = DateFormat('H:mm');
-  final DateFormat pastDateFormat = DateFormat('dd MMM H:mm');
-
-  String formatDate(String date) {
-    final DateTime originalDate = rssDateFormat.parseUTC(date).toLocal();
-    final DateTime now = DateTime.now();
-    final DateTime lastMidnight = new DateTime(now.year, now.month, now.day);
-    return lastMidnight.isBefore(originalDate)
-        ? todayDateFormat.format(originalDate)
-        : pastDateFormat.format(originalDate);
   }
 }
