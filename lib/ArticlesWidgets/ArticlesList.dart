@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobilenewsreader/ArticleUtils/TimeUtils.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ArticleLink.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/AskNewsInputButton.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/Menu.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/PubDate.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ReadArticlePage.dart';
@@ -74,20 +75,25 @@ class _ArticlesState extends State<Articles> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_channel.key),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: update,
-            textColor: Theme.of(context).primaryTextTheme.body2.color,
-            child: PubDate(
-              date: _lastUpdate,
-            ),
-          )
-        ],
-      ),
+      appBar: _buildAppBar(context),
       drawer: Menu(setChannel),
       body: _buildSmartRefresher(),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Text(_channel.key),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: update,
+          textColor: Theme.of(context).primaryTextTheme.body2.color,
+          child: PubDate(
+            date: _lastUpdate,
+          ),
+        ),
+        AskNewsInputButton(setChannel),
+      ],
     );
   }
 
