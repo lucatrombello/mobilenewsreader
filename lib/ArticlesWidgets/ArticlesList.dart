@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobilenewsreader/ArticleUtils/TimeFormatting.dart';
+import 'package:mobilenewsreader/ArticleUtils/TimeUtils.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ArticleLink.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/Menu.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/PubDate.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ReadArticlePage.dart';
 import 'package:mobilenewsreader/resources/channels.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -64,9 +65,7 @@ class _ArticlesState extends State<Articles> {
     if (response.statusCode == 200) {
       setState(() {
         _rssFeed = RssFeed.parse(response.body);
-        _rssFeed.items.sort((item1, item2) => TimeFormatting.rssDateFormat
-            .parseUTC(item2.pubDate)
-            .compareTo(TimeFormatting.rssDateFormat.parseUTC(item1.pubDate)));
+        _rssFeed.items.sort(TimeUtils().sortRssItemsByPubDate);
         _lastUpdate = DateTime.now();
       });
     }
@@ -80,7 +79,9 @@ class _ArticlesState extends State<Articles> {
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text(TimeFormatting().formatDateTime(_lastUpdate)),
+            child: PubDate(
+              date: _lastUpdate,
+            ),
           )
         ],
       ),
@@ -129,9 +130,8 @@ class _ArticlesState extends State<Articles> {
             var rssItem = _rssFeed.items[index];
             return ListTile(
               title: Text(rssItem.title),
-              subtitle: Text(
-                TimeFormatting().formatDateString(rssItem.pubDate),
-                style: TextStyle(fontSize: 14),
+              subtitle: PubDate(
+                stringDate: rssItem.pubDate,
               ),
               trailing: ArticleLink(feed: rssItem),
               onTap: () {

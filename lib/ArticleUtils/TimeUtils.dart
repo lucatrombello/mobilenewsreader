@@ -1,17 +1,13 @@
 import 'package:intl/intl.dart';
 
-class TimeFormatting {
+class TimeUtils {
   static DateFormat rssDateFormat = DateFormat('EEE, dd MMM yyyy hh:mm');
   static DateFormat todayDateFormat = DateFormat('H:mm');
   static DateFormat pastDateFormat = DateFormat('dd MMM H:mm');
 
   String formatDateString(String date) {
-    final DateTime originalDate = rssDateFormat.parseUTC(date).toLocal();
-    final DateTime now = DateTime.now();
-    final DateTime lastMidnight = new DateTime(now.year, now.month, now.day);
-    return lastMidnight.isBefore(originalDate)
-        ? todayDateFormat.format(originalDate)
-        : pastDateFormat.format(originalDate);
+    final DateTime originalDate = parseRssDate(date);
+    return formatDateTime(originalDate);
   }
 
   String formatDateTime(DateTime date) {
@@ -21,4 +17,11 @@ class TimeFormatting {
         ? todayDateFormat.format(date)
         : pastDateFormat.format(date);
   }
+
+  int sortRssItemsByPubDate(item1, item2) =>
+      parseRssDate(item2.pubDate).compareTo(
+        parseRssDate(item1.pubDate),
+      );
+
+  DateTime parseRssDate(date) => rssDateFormat.parseUTC(date).toLocal();
 }

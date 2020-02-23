@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobilenewsreader/ArticleUtils/TimeFormatting.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ArticleText.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ArticleTitle.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/PubDate.dart';
 import 'package:webfeed/webfeed.dart';
 
 class ReadArticlePage extends StatelessWidget {
@@ -17,7 +17,7 @@ class ReadArticlePage extends StatelessWidget {
       body: Column(
         children: <Widget>[
           ArticleTitle(feed: feed),
-          Text(TimeFormatting().formatDateString(feed.pubDate)),
+          PubDate(stringDate: feed.pubDate),
           ArticleText(feed: feed)
         ],
       ),
