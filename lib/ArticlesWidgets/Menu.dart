@@ -19,7 +19,7 @@ class Menu extends StatelessWidget {
   List<Widget> getMenuList(BuildContext context) {
     List<Widget> menuItems = List<Widget>();
     menuItems.add(
-      _getMenuHeader(),
+      _getMenuHeader(context),
     );
     menuItems.addAll(
       _getChannelsList(context),
@@ -28,16 +28,17 @@ class Menu extends StatelessWidget {
     return menuItems;
   }
 
-  DrawerHeader _getMenuHeader() {
+  DrawerHeader _getMenuHeader(BuildContext context) {
     return DrawerHeader(
       decoration: BoxDecoration(
-        color: Colors.blue,
+        color: Theme.of(context).primaryColor,
       ),
-      child: Text(
-        'Channels',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
+      child: Center(
+        child: Text(
+          'News',
+          style: TextStyle(
+              fontSize: 24,
+              color: Theme.of(context).primaryTextTheme.body1.color),
         ),
       ),
     );

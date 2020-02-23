@@ -77,8 +77,9 @@ class _ArticlesState extends State<Articles> {
       appBar: AppBar(
         title: Text(_channel.key),
         actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(20.0),
+          FlatButton(
+            onPressed: update,
+            textColor: Theme.of(context).primaryTextTheme.body2.color,
             child: PubDate(
               date: _lastUpdate,
             ),
@@ -127,24 +128,27 @@ class _ArticlesState extends State<Articles> {
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (context, index) {
           if (_rssFeed != null && index < _rssFeed.items.length) {
-            var rssItem = _rssFeed.items[index];
-            return ListTile(
-              title: Text(rssItem.title),
-              subtitle: PubDate(
-                stringDate: rssItem.pubDate,
-              ),
-              trailing: ArticleLink(feed: rssItem),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReadArticlePage(rssItem),
-                  ),
-                );
-              },
-            );
+            return _buildArticleRow(_rssFeed.items[index], context);
           }
           return null;
         });
+  }
+
+  ListTile _buildArticleRow(RssItem rssItem, BuildContext context) {
+    return ListTile(
+      title: Text(rssItem.title),
+      subtitle: PubDate(
+        stringDate: rssItem.pubDate,
+      ),
+      trailing: ArticleLink(feed: rssItem),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReadArticlePage(rssItem),
+          ),
+        );
+      },
+    );
   }
 }

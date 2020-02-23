@@ -18,6 +18,7 @@ class ReadArticlePage extends StatelessWidget {
         children: <Widget>[
           ArticleTitle(feed: feed),
           PubDate(stringDate: feed.pubDate),
+          Divider(),
           ArticleText(feed: feed)
         ],
       ),
