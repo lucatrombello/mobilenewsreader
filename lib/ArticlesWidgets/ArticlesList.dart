@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobilenewsreader/ArticleUtils/TimeUtils.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ArticleLink.dart';
-import 'package:mobilenewsreader/ArticlesWidgets/AskNewsInputButton.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/Menu.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/PubDate.dart';
 import 'package:mobilenewsreader/ArticlesWidgets/ReadArticlePage.dart';
@@ -36,6 +35,7 @@ class _ArticlesState extends State<Articles> {
   RssFeed _rssFeed;
   MapEntry<String, String> _channel;
   DateTime _lastUpdate = DateTime.now();
+  ScrollController _scrollController = ScrollController();
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -50,8 +50,17 @@ class _ArticlesState extends State<Articles> {
   void setChannel(MapEntry<String, String> channel) {
     setState(() {
       _channel = channel;
+      _scrollToTop();
       update();
     });
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0.0,
+      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   @override
@@ -83,22 +92,34 @@ class _ArticlesState extends State<Articles> {
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text(_channel.key),
+      title: GestureDetector(
+        child: Text(_channel.key),
+        onTap: _scrollToTop,
+      ),
       actions: <Widget>[
         FlatButton(
           onPressed: update,
           textColor: Theme.of(context).primaryTextTheme.body2.color,
-          child: PubDate(
-            date: _lastUpdate,
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Icon(Icons.update),
+              ),
+              PubDate(
+                date: _lastUpdate,
+              ),
+            ],
           ),
         ),
-        AskNewsInputButton(setChannel),
       ],
     );
   }
 
   SmartRefresher _buildSmartRefresher() {
     return SmartRefresher(
+      scrollController: _scrollController,
+      primary: false,
       enablePullDown: true,
       enablePullUp: false,
       header: WaterDropHeader(),

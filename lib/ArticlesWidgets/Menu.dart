@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobilenewsreader/ArticlesWidgets/AskNewsInputListTile.dart';
 import 'package:mobilenewsreader/resources/channels.dart';
 
 class Menu extends StatelessWidget {
@@ -24,6 +25,10 @@ class Menu extends StatelessWidget {
     menuItems.addAll(
       _getChannelsList(context),
     );
+    menuItems.add(AskNewsInputListTile((channel) {
+      _onChannelSelected(channel);
+      Navigator.pop(context);
+    }));
 
     return menuItems;
   }
@@ -35,7 +40,7 @@ class Menu extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'News',
+          'News channels',
           style: TextStyle(
               fontSize: 24,
               color: Theme.of(context).primaryTextTheme.body1.color),

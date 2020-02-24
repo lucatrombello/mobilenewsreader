@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class AskNewsInputButton extends StatelessWidget {
+class AskNewsInputListTile extends StatelessWidget {
   final Function(MapEntry<String, String> channel) _onChannelSelected;
   final TextEditingController _textFieldController = TextEditingController();
 
-  AskNewsInputButton(this._onChannelSelected);
+  AskNewsInputListTile(this._onChannelSelected);
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      padding: EdgeInsets.symmetric(horizontal: 28.0),
-      icon: Icon(Icons.search),
-      onPressed: () => _displayDialog(context),
+    return ListTile(
+      leading: Icon(Icons.search),
+      title: Text('SEARCH'),
+      onTap: () => _displayDialog(context),
     );
   }
 
@@ -28,6 +28,7 @@ class AskNewsInputButton extends StatelessWidget {
             title: Text('Search'),
             content: TextField(
               autofocus: true,
+              autocorrect: false,
               controller: _textFieldController,
               decoration: InputDecoration(hintText: ""),
               onSubmitted: (String value) {
