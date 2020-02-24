@@ -50,7 +50,6 @@ class _ArticlesState extends State<Articles> {
   void setChannel(MapEntry<String, String> channel) {
     setState(() {
       _channel = channel;
-      _scrollToTop();
       update();
     });
   }
@@ -77,6 +76,7 @@ class _ArticlesState extends State<Articles> {
         _rssFeed = RssFeed.parse(response.body);
         _rssFeed.items.sort(TimeUtils().sortRssItemsByPubDate);
         _lastUpdate = DateTime.now();
+        _scrollToTop();
       });
     }
   }
