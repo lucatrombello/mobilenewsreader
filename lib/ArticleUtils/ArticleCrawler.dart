@@ -9,8 +9,14 @@ class ArticleCrawler {
   Future<String> getArticle() async {
     http.Response response = await http.get(this.link);
     dom.Document document = parser.parse(response.body);
+    String pContent = getTagNameContent(document, 'p');
+    String articleContent = getTagNameContent(document, 'article');
+    return pContent.length > articleContent.length ? pContent : articleContent;
+  }
+
+  String getTagNameContent(dom.Document document, String tagName) {
     return document
-        .getElementsByTagName('p')
+        .getElementsByTagName(tagName)
         .where((article) => article.text.length > 30)
         .map((article) => '<p>${article.text}</p>')
         .join('');
