@@ -10,10 +10,10 @@ class ArticleCrawler {
     http.Response response = await http.get(this.link);
     dom.Document document = parser.parse(response.body);
     String pContent = getTagNameContent(document, 'p');
-    String articleContent = getTagNameContent(document, 'article');
     if (pContent.length > 100) {
       return pContent;
     }
+    String articleContent = getTagNameContent(document, 'article');
     return pContent.length > articleContent.length ? pContent : articleContent;
   }
 
