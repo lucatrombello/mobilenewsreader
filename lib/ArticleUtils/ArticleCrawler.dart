@@ -11,6 +11,9 @@ class ArticleCrawler {
     dom.Document document = parser.parse(response.body);
     String pContent = getTagNameContent(document, 'p');
     String articleContent = getTagNameContent(document, 'article');
+    if (pContent.length > 100) {
+      return pContent;
+    }
     return pContent.length > articleContent.length ? pContent : articleContent;
   }
 
